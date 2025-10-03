@@ -129,17 +129,3 @@ Never commit your API key to the repo.
 - Each user must provide their own key.
 
 **Why?** Committing API keys publicly can lead to unauthorized usage and potential charges or data breaches. Keeping keys out of source control is a best practice for security.
-
----
-
-## 📜 License
-
-MIT (or whichever you prefer)
-
----
-
-This way:  
-- Your **own repo is clean** (no secrets).  
-- Any **3rd-party user** can just clone, set their own `GEMINI_API_KEY`, and run.  
-- If you want additional providers later, you can plug them in by implementing `IChatClient` and updating the factory/DI registration.
-
