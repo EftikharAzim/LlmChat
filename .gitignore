@@ -1,0 +1,59 @@
+# Build artifacts
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+.packages
+.nuget/
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment and secrets
+.env
+.env.*
+# appsettings.*.json
+
+# Keep example config tracked, but ignore real appsettings in the console project
+LlmChat.Console/appsettings.json
+LlmChat.Console/appsettings.Development.json
+
+# Editors
+*.swp
+*~
+
+# Debug
+*.cache
+
+# JetBrains Rider
+.idea/
+
+# Misc
+coverage/ 
+
+# Lock files
+**/project.assets.json
+
+# Ignore local tool manifest
+.dotnet_tool_restore
+
+# Ignore GitHub workflows secrets
+.github
