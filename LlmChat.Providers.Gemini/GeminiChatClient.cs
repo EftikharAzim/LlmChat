@@ -11,12 +11,14 @@ public sealed class GeminiChatClient : IChatClient
     private readonly HttpClient _http;
     private readonly string _model;
     private readonly string _apiKey;
+    private readonly string? _systemPrompt;
 
-    public GeminiChatClient(HttpClient http, string apiKey, string? model = null)
+    public GeminiChatClient(HttpClient http, string apiKey, string? model = null, string? systemPrompt = null)
     {
         _http = http;
         _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
         _model = string.IsNullOrWhiteSpace(model) ? "gemini-2.0-flash" : model;
+        _systemPrompt = systemPrompt;
         _http.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
         _http.DefaultRequestHeaders.Accept.Clear();
         _http.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -33,6 +35,10 @@ public sealed class GeminiChatClient : IChatClient
         // Map our generic messages to Gemini "contents"
         var contents = new List<GeminiContent>();
         GeminiSystemInstruction? sys = null;
+        
+        if (!string.IsNullOrEmpty(_systemPrompt))
+            sys = new GeminiSystemInstruction(new[] { new GeminiPart(_systemPrompt) });
+
         foreach (var msg in request.Messages)
         {
             if (msg.Role == ChatRole.System)
@@ -55,6 +61,11 @@ public sealed class GeminiChatClient : IChatClient
             throw new HttpRequestException($"Gemini API error {(int)resp.StatusCode} {resp.ReasonPhrase}: {err}");
         }
 
+        if (resp.Content.Headers.ContentLength == 0)
+        {
+            throw new InvalidOperationException("Gemini returned an empty body.");
+        }
+
         using var stream = await resp.Content.ReadAsStreamAsync(ct);
         var result = await JsonSerializer.DeserializeAsync<GeminiGenerateContentResponse>(stream, GeminiJson.Options, ct)
                      ?? throw new InvalidOperationException("Empty Gemini response.");
@@ -67,6 +78,13 @@ public sealed class GeminiChatClient : IChatClient
 
         var finish = result.Candidates?.FirstOrDefault()?.FinishReason;
         return new ChatResponse(text, finish, result);
+    }
+
+    public async Task<string> SendMessageAsync(string prompt, CancellationToken ct = default)
+    {
+        var request = new ChatRequest(new List<ChatMessage> { new(ChatRole.User, prompt) });
+        var response = await CompleteAsync(request, ct);
+        return response.Text;
     }
 
     // === DTOs for Gemini JSON ===
