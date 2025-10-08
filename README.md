@@ -1,131 +1,85 @@
 # LlmChat
 
-A provider-agnostic chat client built in C#/.NET.  
-- Works today with **Google Gemini API (free tier)**.  
-- Designed so you can add other providers later without touching the UI.  
-- Current UI: simple **.NET Console App**. Replaceable with **WPF, MAUI, or any other UI**.
+A provider-agnostic chat client built in C#/.NET.
+- Works today with Google Gemini API (free tier).
+- Clean separation: `Abstractions` | `Providers` | `UI (Console, WPF)`.
+- Easy to extend with new LLM providers via `IChatClient`.
 
 ---
 
-## ✨ Features
-- `IChatClient` abstraction → UI is backend-agnostic.  
-- Gemini provider using REST API (`/v1/models/{model}:generateContent`).  
-- Supports **system, user, assistant roles**.  
-- Clean architecture: `Abstractions` | `Providers` | `UI`.
+## Features
+- `IChatClient` abstraction keeps UIs backend-agnostic.
+- Gemini provider using REST API (`/v1/models/{model}:generateContent`).
+- Supports system, user, assistant roles.
+- Console and WPF front-ends.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
-### 1. Clone & Build
+### 1) Build
 ```bash
-git clone https://github.com/yourusername/LlmChat.git
-cd LlmChat
 dotnet build
 ```
 
-### 2. Get an API Key
-- Go to [Google AI Studio](https://studio.google.ai/).
-- Sign in with a Google account.
-- Create a free Gemini API key (you’ll stay in free tier unless you attach billing).
+### 2) Get an API key
+- Visit Google AI Studio and create a free Gemini API key.
 
-### 3. Set Environment Variable
+### 3) Configure the key (choose one)
 
-**macOS / Linux**
+- Environment variable
+  - macOS/Linux: `export GEMINI_API_KEY="your_api_key_here"`
+  - Windows PowerShell: `setx GEMINI_API_KEY "your_api_key_here"` (restart shell)
 
+- User Secrets (recommended in development)
 ```bash
-export GEMINI_API_KEY="your_api_key_here"
+dotnet user-secrets init --project LlmChat.Console
+dotnet user-secrets set "Providers:Gemini:ApiKey" "your_api_key_here" --project LlmChat.Console
+
+# For WPF (set from the WPF project):
+dotnet user-secrets init --project LlmChat.Wpf
+dotnet user-secrets set "Providers:Gemini:ApiKey" "your_api_key_here" --project LlmChat.Wpf
 ```
 
-To make it permanent, add the line above to your `~/.zshrc` or `~/.bashrc`.
+- Local config file (do not commit secrets)
+  - Console example: `LlmChat.Console/appsettings.example.json`
+  - WPF example: `LlmChat.Wpf/appsettings.example.json`
+  - Copy to `appsettings.json` and fill values locally.
 
-**Windows (PowerShell)**
+### 4) Run
 
-```powershell
-setx GEMINI_API_KEY "your_api_key_here"
-```
-
-Restart your shell so it takes effect.
-
-**Verify:**
-
-- On macOS/Linux:
-```bash
-echo $GEMINI_API_KEY
-```
-
-- On Windows PowerShell:
-```powershell
-echo $Env:GEMINI_API_KEY
-```
-
-### 4. Run the Console App
-
+- Console
 ```bash
 dotnet run --project LlmChat.Console
 ```
 
-You’ll see:
-
-```
-LLM Chat (Gemini). Type '/exit' to quit.
-
-You > Hello
-Bot > Hi there! 👋
-```
-
-Alternative: appsettings or user-secrets
-
-You can also put the key in `LlmChat.Console/appsettings.json` under `Providers:Gemini:ApiKey` for local development, or use `dotnet user-secrets`:
-
+- WPF
 ```bash
-dotnet user-secrets init --project LlmChat.Console
-dotnet user-secrets set "Providers:Gemini:ApiKey" "your_api_key_here" --project LlmChat.Console
+dotnet run --project LlmChat.Wpf
 ```
 
 ---
 
-## ⚠️ Cost & Free Tier
-
-- The Gemini API free tier is safe to use without incurring charges.
-- Free tier limits include quotas on tokens per day and requests per minute.
-- If you exceed these limits or enable billing, charges may apply.
-- You can monitor your usage and billing status in the Google AI Studio dashboard.
-- **Rule of thumb:** If you never enable billing, you cannot be charged.
+## Security
+- Do not commit API keys.
+- Prefer environment variables or user-secrets for development.
+- Example config files are provided; copy locally and never push secrets.
 
 ---
 
-## 🔄 Swapping Providers
-
-This project is designed to support multiple providers:
-
-- `GeminiChatClient` → uses Google Gemini.
-- You can add additional providers by implementing the `IChatClient` interface.
-- To add a new provider, implement `IChatClient` methods for sending and receiving messages according to your provider's API.
-- The UI remains unchanged — only the factory or service registration that builds the client needs to be updated.
+## Extending Providers
+- Implement `IChatClient` for a new provider.
+- Register it in the DI container (Console/WPF) and wire up config.
 
 ---
 
-## 📦 Roadmap
-- Streaming responses (SSE).
-- (Optional) Additional providers such as OpenAI or local models can be added in future by following the provider pattern.
-- Local ONNX provider.
-- WPF / MAUI front-ends.
+## Roadmap
+- Streaming responses.
+- Additional providers (OpenAI, local models) via the provider pattern.
+- More UI polish in WPF; MAUI sample.
 
 ---
 
-## 🤝 Contributing
-- Fork the repo.
-- Add your provider or UI layer.
-- PRs welcome!
+## Contributing
+- Fork and open a PR. Providers and UIs welcome!
 
----
-
-## 🔑 Security
-
-Never commit your API key to the repo.  
-- Keep it in environment variables.  
-- Add any `appsettings.*.json` or `.env` files to `.gitignore`.  
-- Each user must provide their own key.
-
-**Why?** Committing API keys publicly can lead to unauthorized usage and potential charges or data breaches. Keeping keys out of source control is a best practice for security.
