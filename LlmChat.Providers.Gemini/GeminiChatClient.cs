@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LlmChat.Abstractions;
@@ -54,11 +55,14 @@ public sealed class GeminiChatClient : IChatClient
         }
 
         var payload = new GeminiGenerateContentRequest(contents, sys);
-        using var resp = await _http.PostAsJsonAsync(endpoint, payload, GeminiJson.Options, ct);
+        var json = JsonSerializer.Serialize(payload, GeminiJson.Options);
+        using var resp = await _http.PostAsync(endpoint, new StringContent(json, Encoding.UTF8, "application/json"), ct);
         if (!resp.IsSuccessStatusCode)
         {
             var err = await resp.Content.ReadAsStringAsync(ct);
-            throw new HttpRequestException($"Gemini API error {(int)resp.StatusCode} {resp.ReasonPhrase}: {err}");
+            var showReq = Environment.GetEnvironmentVariable("LLMCHAT_DEBUG_HTTP") == "1";
+            var snippet = showReq ? $"\nRequest JSON: {json}" : string.Empty;
+            throw new HttpRequestException($"Gemini API error {(int)resp.StatusCode} {resp.ReasonPhrase}: {err}{snippet}");
         }
 
         if (resp.Content.Headers.ContentLength == 0)
