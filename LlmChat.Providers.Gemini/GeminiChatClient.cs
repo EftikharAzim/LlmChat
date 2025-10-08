@@ -60,11 +60,34 @@ public sealed class GeminiChatClient : IChatClient
         if (!resp.IsSuccessStatusCode)
         {
             var err = await resp.Content.ReadAsStringAsync(ct);
+            // Fallback: some deployments reject systemInstruction. Retry without it by prepending a user instruction.
+            if ((int)resp.StatusCode == 400 && (err.Contains("SystemInstruction", StringComparison.OrdinalIgnoreCase) || err.Contains("systemInstruction", StringComparison.OrdinalIgnoreCase)))
+            {
+                var fallbackContents = new List<GeminiContent>();
+                if (sys?.Parts is not null)
+                {
+                    // Flatten system instruction into first user message
+                    var sysText = sys.Parts.FirstOrDefault()?.Text;
+                    if (!string.IsNullOrWhiteSpace(sysText))
+                        fallbackContents.Add(new GeminiContent("user", new[] { new GeminiPart(sysText!) }));
+                }
+                fallbackContents.AddRange(contents);
+                var fallbackPayload = new GeminiGenerateContentRequest(fallbackContents, null);
+                var fallbackJson = JsonSerializer.Serialize(fallbackPayload, GeminiJson.Options);
+                using var resp2 = await _http.PostAsync(endpoint, new StringContent(fallbackJson, Encoding.UTF8, "application/json"), ct);
+                if (resp2.IsSuccessStatusCode)
+                    goto ReadResponse; // continue to parse below
+                var err2 = await resp2.Content.ReadAsStringAsync(ct);
+                var showReq2 = Environment.GetEnvironmentVariable("LLMCHAT_DEBUG_HTTP") == "1";
+                var snippet2 = showReq2 ? $"\nRequest JSON (fallback): {fallbackJson}" : string.Empty;
+                throw new HttpRequestException($"Gemini API error {(int)resp2.StatusCode} {resp2.ReasonPhrase}: {err2}{snippet2}");
+            }
             var showReq = Environment.GetEnvironmentVariable("LLMCHAT_DEBUG_HTTP") == "1";
             var snippet = showReq ? $"\nRequest JSON: {json}" : string.Empty;
             throw new HttpRequestException($"Gemini API error {(int)resp.StatusCode} {resp.ReasonPhrase}: {err}{snippet}");
         }
-
+ReadResponse:
+        
         if (resp.Content.Headers.ContentLength == 0)
         {
             throw new InvalidOperationException("Gemini returned an empty body.");
