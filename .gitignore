@@ -25,6 +25,7 @@ Thumbs.db
 appsettings.*.local.json
 appsettings.Development.json
 *.secrets.json
+appsettings.json
 
 # User secrets directory (do not commit machine secrets)
 **/*.secret.json
