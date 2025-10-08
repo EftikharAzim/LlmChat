@@ -1,59 +1,34 @@
-# Build artifacts
+# Build outputs
 bin/
 obj/
 **/bin/
 **/obj/
 
-# Visual Studio files
+# Visual Studio / IDE
 .vs/
+.vscode/
+.idea/
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
+*.DotSettings.user
 
-# NuGet
-*.nupkg
-.packages
-.nuget/
-
-# Rider
-.idea/
-*.sln.iml
-
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
 # Logs
 *.log
 
-# Environment and secrets
-.env
-.env.*
-# appsettings.*.json
+# Local configuration overrides (keep secrets out of git)
+appsettings.*.local.json
+appsettings.Development.json
+*.secrets.json
 
-# Keep example config tracked, but ignore real appsettings in the console project
-LlmChat.Console/appsettings.json
-LlmChat.Console/appsettings.Development.json
+# User secrets directory (do not commit machine secrets)
+**/*.secret.json
 
-# Editors
-*.swp
-*~
+# Rider/JetBrains caches
+.fleet/
 
-# Debug
-*.cache
-
-# JetBrains Rider
-.idea/
-
-# Misc
-coverage/ 
-
-# Lock files
-**/project.assets.json
-
-# Ignore local tool manifest
-.dotnet_tool_restore
-
-# Ignore GitHub workflows secrets
-.github
