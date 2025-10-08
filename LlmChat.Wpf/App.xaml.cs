@@ -32,13 +32,6 @@ namespace LlmChat.Wpf
                     config.AddEnvironmentVariables();
                 })
 
-                //.ConfigureAppConfiguration((context, config) =>
-                //{
-                //    config.SetBasePath(Directory.GetCurrentDirectory());
-                //    config.AddJsonFile("appsettings.json", optional: true);
-                //    config.AddUserSecrets<App>(optional: true);
-                //    config.AddEnvironmentVariables();
-                //})
                 .ConfigureServices((ctx, services) =>
                 {
                     var cfg = ctx.Configuration;
@@ -46,7 +39,7 @@ namespace LlmChat.Wpf
                     var apiKey = cfg["Providers:Gemini:ApiKey"]
                                ?? cfg["GEMINI_API_KEY"]
                                ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
-                    var model = cfg["Providers:Gemini:Model"] ?? "gemini-1.5-flash";
+                    var model = cfg["Providers:Gemini:Model"] ?? "gemini-2.0-flash";
                     var system = cfg["Providers:Gemini:SystemPrompt"];
 
                     services.AddSingleton<IChatClient>(sp =>

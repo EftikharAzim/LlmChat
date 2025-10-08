@@ -18,7 +18,7 @@ public sealed class GeminiChatClient : IChatClient
     {
         _http = http;
         _apiKey = apiKey ?? throw new ArgumentNullException(nameof(apiKey));
-        _model = string.IsNullOrWhiteSpace(model) ? "gemini-1.5-flash" : model;
+        _model = string.IsNullOrWhiteSpace(model) ? "gemini-2.0-flash" : model;
         _systemPrompt = systemPrompt;
         _http.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
         _http.DefaultRequestHeaders.Accept.Clear();
