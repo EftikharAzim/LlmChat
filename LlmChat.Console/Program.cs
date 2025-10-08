@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
 var builder = Host.CreateApplicationBuilder(args);
+// Ensure developer user-secrets are loaded when present
+builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Services.AddLogging();
 builder.Services.AddSingleton<IChatClient>(sp =>
 {
@@ -15,7 +17,9 @@ builder.Services.AddSingleton<IChatClient>(sp =>
     {
         case "gemini":
             // Try configuration first, then fall back to environment variable for convenience.
-            var geminiKey = config["Providers:Gemini:ApiKey"] ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
+            var geminiKey = config["Providers:Gemini:ApiKey"]
+                          ?? config["GEMINI_API_KEY"]
+                          ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY");
             if (string.IsNullOrWhiteSpace(geminiKey))
                 throw new InvalidOperationException("Gemini API key not set. Provide it via appsettings.json (Providers:Gemini:ApiKey), the GEMINI_API_KEY environment variable, or `dotnet user-secrets` during development.");
             return new LlmChat.Providers.Gemini.GeminiChatClient(new HttpClient(), geminiKey, model);
