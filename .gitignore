@@ -25,11 +25,26 @@ Thumbs.db
 appsettings.*.local.json
 appsettings.Development.json
 *.secrets.json
-appsettings.json
+
+# Ignore all environment- and machine-specific appsettings, but keep examples
+**/appsettings.*.json
+!**/appsettings.example.json
+
+# Environment variable files
+.env
+.env.*
+*.env
+*.env.*
+
+# Common secret/cert files
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
 
 # User secrets directory (do not commit machine secrets)
 **/*.secret.json
 
 # Rider/JetBrains caches
 .fleet/
-
