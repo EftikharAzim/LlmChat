@@ -10,4 +10,10 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LlmChat.Abstractions\LlmChat.Abstractions.csproj" />
+    <ProjectReference Include="..\LlmChat.Memory\LlmChat.Memory.csproj" />
+    <ProjectReference Include="..\LlmChat.Tools\LlmChat.Tools.csproj" />
+  </ItemGroup>
+
 </Project>

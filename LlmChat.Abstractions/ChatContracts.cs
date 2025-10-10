@@ -17,4 +17,5 @@ public record ChatResponse(
 public interface IChatClient
 {
     Task<ChatResponse> CompleteAsync(ChatRequest request, CancellationToken ct = default);
+    IAsyncEnumerable<string> StreamAsync(ChatRequest request, CancellationToken ct = default);
 }

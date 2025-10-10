@@ -1,7 +1,37 @@
-﻿namespace LlmChat.Wpf.Models;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-public class MessageModel
+namespace LlmChat.Wpf.Models;
+
+public class MessageModel : INotifyPropertyChanged
 {
-    public string Role { get; set; } = string.Empty;   // "User", "Assistant", "System"
-    public string Content { get; set; } = string.Empty;
+    private string _role = string.Empty;
+    private string _content = string.Empty;
+
+    public string Role 
+    { 
+        get => _role;
+        set 
+        { 
+            _role = value; 
+            OnPropertyChanged(); 
+        }
+    }
+
+    public string Content 
+    { 
+        get => _content;
+        set 
+        { 
+            _content = value; 
+            OnPropertyChanged(); 
+        }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

@@ -1,10 +1,16 @@
 ﻿using LlmChat.Abstractions;
+using LlmChat.Agent;
+using LlmChat.Agent.Planning;
+using LlmChat.Memory;
 using LlmChat.Providers.Gemini;
+using LlmChat.Tools;
+using LlmChat.Tools.Google;
 using LlmChat.Wpf.ViewModels;
 using LlmChat.Wpf.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Windows;
 
@@ -54,8 +60,45 @@ namespace LlmChat.Wpf
                         return new GeminiChatClient(http, apiKey, model, system);
                     });
 
+                    // Create models dictionary for future expansion
+                    services.AddSingleton(sp =>
+                    {
+                        var chatClients = new Dictionary<string, IChatClient>();
+                        chatClients["Gemini"] = sp.GetRequiredService<IChatClient>();
+                        // Future models can be added here
+                        return chatClients;
+                    });
+
                     services.AddSingleton<ChatViewModel>();
+                    
                     services.AddSingleton<ChatWindow>();
+                    services.AddSingleton<IMemoryStore, InMemoryStore>();
+
+                    // Register Google Calendar Service with proper dependency injection
+                    services.AddSingleton<IGoogleCalendarService>(sp =>
+                    {
+                        var config = sp.GetRequiredService<IConfiguration>();
+                        var logger = sp.GetService<ILogger<GoogleCalendarService>>();
+                        return new GoogleCalendarService(config, logger);
+                    });
+                    services.AddSingleton<ITool>(sp =>
+                    {
+                        var calendarService = sp.GetRequiredService<IGoogleCalendarService>();
+                        var logger = sp.GetService<ILogger<GoogleCalendarSearchTool>>();
+                        return new GoogleCalendarSearchTool(calendarService, logger);
+                    });
+                    services.AddSingleton<IToolRegistry, ToolRegistry>();
+
+                    services.AddSingleton<IIntentRouter, LlmIntentRouter>();
+                    services.AddSingleton<IAgent>(sp =>
+                    {
+                        var llm = sp.GetRequiredService<IChatClient>();
+                        var router = sp.GetRequiredService<IIntentRouter>();
+                        var memory = sp.GetRequiredService<IMemoryStore>();
+                        var tools = sp.GetRequiredService<IToolRegistry>();
+                        var logger = sp.GetService<ILogger<AgentRuntime>>();
+                        return new AgentRuntime(llm, router, memory, tools, logger);
+                    });
                 })
                 .Build();
 
