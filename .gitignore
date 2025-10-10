@@ -4,47 +4,67 @@ obj/
 **/bin/
 **/obj/
 
+# .NET / Visual Studio
+[Bb]uild/
+[Ll]og/
+logs/
+*.log
+
 # Visual Studio / IDE
 .vs/
-.vscode/
 .idea/
-*.user
 *.suo
+*.user
 *.userosscache
 *.sln.docstates
 *.DotSettings.user
+.vscode/
 
-# OS
+# Rider/ReSharper/NCrunch
+_ReSharper*/
+*.ReSharper
+*.ncrunch*
+
+# Test/coverage artifacts
+TestResults*/
+[Tt]est[Rr]esult*/
+*.coverage
+*.coveragexml
+coverage/
+
+# Packages (PackageReference restores to global cache; keep repo clean)
+packages/
+
+# OS junk
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Node
+node_modules/
 
-# Local configuration overrides (keep secrets out of git)
-appsettings.*.local.json
-appsettings.Development.json
-*.secrets.json
+# Publish/artifacts
+artifacts/
+Publish*/
+*.publishsettings
 
-# Ignore all environment- and machine-specific appsettings, but keep examples
-**/appsettings.*.json
-!**/appsettings.example.json
-
-# Environment variable files
+# Environment and secrets
 .env
 .env.*
-*.env
-*.env.*
+.env.local
+.env.*.local
 
-# Common secret/cert files
-*.pem
-*.key
-*.crt
-*.pfx
-*.p12
+# App settings (keep example files tracked)
+**/appsettings.json
+!**/appsettings.example.json
 
-# User secrets directory (do not commit machine secrets)
-**/*.secret.json
+# Google OAuth credentials and token caches
+credentials.json
+**/credentials.json
+LlmChat.GoogleAuth/
+LlmChat.GoogleAuth.Diagnostics/
 
-# Rider/JetBrains caches
-.fleet/
+# User-specific config
+*.local.json
+
+# Local model weights
+*.gguf
