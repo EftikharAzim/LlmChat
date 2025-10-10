@@ -60,6 +60,7 @@ Publish*/
 # Google OAuth credentials and token caches
 credentials.json
 **/credentials.json
+**/client_secret*.json
 LlmChat.GoogleAuth/
 LlmChat.GoogleAuth.Diagnostics/
 
